@@ -129,9 +129,30 @@ class Filtering(commands.Cog):
 
     @commands.command()
     async def unfollow(self, ctx, name):
-        # Add the user to the filter, if creator option to delete
+        if os.path.exists("filters.json") and os.path.getsize("filters.json") > 0:
+            with open("filters.json") as f:
+                data = json.load(f)
 
-        await ctx.send(f"{ctx.author.mention} you have unfollowed {name}")
+            user_id = ctx.message.author.id
+
+            if name not in data:
+                await ctx.send(f"There is no filter named {name}")
+                return
+
+            elif user_id not in data[name]["following"]:
+                await ctx.send(f"{ctx.author.mention} you don't follow {name}")
+                return
+
+            else:
+                data[name]["following"].remove(user_id)
+
+            with open("filters.json", "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+
+            await ctx.send(f"{ctx.author.mention} you have unfollowed {name}")
+
+        else:
+            await ctx.send("There are no active filters")
 
     @commands.command()
     async def remove(self, ctx, name):
