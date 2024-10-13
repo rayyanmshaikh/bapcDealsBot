@@ -17,7 +17,7 @@ class Filtering(commands.Cog):
     """
 
     @commands.command()
-    async def addFilter(self, ctx, name, commodity, min_price=None, max_price=None, *keywords):
+    async def add(self, ctx, name, commodity, min_price=None, max_price=None, *keywords):
         try:
             minimum = int(min_price) if min_price is not None else -1
             maximum = int(max_price) if max_price is not None else -1
@@ -102,9 +102,30 @@ class Filtering(commands.Cog):
 
     @commands.command()
     async def follow(self, ctx, name):
-        # Add the user to the filter
+        if os.path.exists("filters.json") and os.path.getsize("filters.json") > 0:
+            with open("filters.json") as f:
+                data = json.load(f)
 
-        await ctx.send(f"{ctx.author.mention} you are now following {name}")
+            user_id = ctx.message.author.id
+
+            if name not in data:
+                await ctx.send(f"There is no filter named {name}")
+                return
+
+            if user_id not in data[name]["following"]:
+                data[name]["following"].append(user_id)
+
+            else:
+                await ctx.send(f"{ctx.author.mention} you already follow {name}")
+                return
+
+            with open("filters.json", "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+
+            await ctx.send(f"{ctx.author.mention} you are now following {name}")
+
+        else:
+            await ctx.send("There are no active filters")
 
     @commands.command()
     async def unfollow(self, ctx, name):
