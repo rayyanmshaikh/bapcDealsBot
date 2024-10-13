@@ -3,21 +3,27 @@ import json
 import os
 from discord.ext import commands
 
+""" The class meant to interact with the users for all commands to update the filters """
+
 
 class Filtering(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     """ Creates a new filter with specified limitations
-    name: name of filter
-    commodity: commodity being sold
-    min_price: optional minimum price of item
-    max_price: optional maximum price of item
-    keywords: optional keywords to search for
+        name: name of filter
+        commodity: commodity being sold
+        min_price: optional minimum price of item
+        max_price: optional maximum price of item
+        keywords: optional keywords to search for
     """
 
     @commands.command()
-    async def add(self, ctx, name, commodity, min_price=None, max_price=None, *keywords):
+    async def add(self, ctx, name=None, commodity=None, min_price=None, max_price=None, *keywords):
+        if name is None or commodity is None:
+            await ctx.send("Error: You must give the filter a name and a item to filter for")
+            return
+
         try:
             minimum = int(min_price) if min_price is not None else -1
             maximum = int(max_price) if max_price is not None else -1
@@ -38,6 +44,7 @@ class Filtering(commands.Cog):
         new_filter = {name: {"commodity": commodity, "min": min_price, "max": max_price, "keywords": keywords,
                              "creator": ctx.message.author.name, "following": [ctx.message.author.id]}}
         old_filter = {}
+        filter_type = ""
 
         if os.path.exists("filters.json") and os.path.getsize("filters.json") > 0:
             with open("filters.json") as f:
@@ -61,17 +68,20 @@ class Filtering(commands.Cog):
                     await ctx.send("Cancelled overwrite")
                     return
 
+                filter_type = "updated"
+
+            else:
+                filter_type = "added"
+
             data.update(new_filter)
-            filter_type = "updated"
 
         else:
             data = new_filter
-            filter_type = "added"
 
         with open("filters.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
-        await ctx.send(f"Watcher {name} {filter_type} with the following parameters:\nType - {commodity}\nMimium Price"
+        await ctx.send(f"Filter {name} {filter_type} with the following parameters:\nType - {commodity}\nMimium Price"
                        f" - {min_price}\nMaximum Price - {max_price}\nKeywords - {', '.join(keywords)}")
 
         if filter_type == "updated":
@@ -100,8 +110,49 @@ class Filtering(commands.Cog):
 
                 await ctx.send(" ".join(f"<@{user_id}>" for user_id in data[name]["following"]))
 
+    """ Removes the filter specified
+        name: name of filter
+    """
+
     @commands.command()
-    async def follow(self, ctx, name):
+    async def remove(self, ctx, name):
+        if name is None:
+            await ctx.send("Error: You must give a filter name to remove")
+            return
+
+        if os.path.exists("filters.json") and os.path.getsize("filters.json") > 0:
+            with open("filters.json") as f:
+                data = json.load(f)
+
+            if name not in data:
+                await ctx.send(f"There is no filter named {name}")
+                return
+
+            elif ctx.author.name != data[name]["creator"] and not ctx.author.guild_permissions.administrator:
+                await ctx.send(f"{ctx.author.mention} you have to be the creator or an admin to delete {name}")
+                return
+
+            else:
+                data.pop(name)
+
+            with open("filters.json", "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+
+            await ctx.send(f"{ctx.author.mention} you have deleted {name}")
+
+        else:
+            await ctx.send("There are no active filters")
+
+    """ User follows the filter specified
+        name: name of filter
+    """
+
+    @commands.command()
+    async def follow(self, ctx, name=None):
+        if name is None:
+            await ctx.send("Error: You must give a filter name to follow")
+            return
+
         if os.path.exists("filters.json") and os.path.getsize("filters.json") > 0:
             with open("filters.json") as f:
                 data = json.load(f)
@@ -127,8 +178,16 @@ class Filtering(commands.Cog):
         else:
             await ctx.send("There are no active filters")
 
+    """ User unfollows the filter specified
+        name: name of filter
+    """
+
     @commands.command()
-    async def unfollow(self, ctx, name):
+    async def unfollow(self, ctx, name=None):
+        if name is None:
+            await ctx.send("Error: You must give a filter name to unfollow")
+            return
+
         if os.path.exists("filters.json") and os.path.getsize("filters.json") > 0:
             with open("filters.json") as f:
                 data = json.load(f)
@@ -153,11 +212,6 @@ class Filtering(commands.Cog):
 
         else:
             await ctx.send("There are no active filters")
-
-    @commands.command()
-    async def remove(self, ctx, name):
-        # Remove the specified filter only admins or creator
-        await ctx.send(f"{ctx.author.mention} you have removed filter {name}")
 
 
 async def setup(bot):
