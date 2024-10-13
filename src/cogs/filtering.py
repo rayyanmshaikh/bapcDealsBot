@@ -10,16 +10,19 @@ class Filtering(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    """ Creates a new filter with specified limitations
-        name: name of filter
-        commodity: commodity being sold
-        min_price: optional minimum price of item
-        max_price: optional maximum price of item
-        keywords: optional keywords to search for
-    """
-
     @commands.command()
     async def add(self, ctx, name=None, commodity=None, min_price=None, max_price=None, *keywords):
+        """
+        Creates a new filter with specified limitations
+        name: name of filter
+        :param ctx:
+        :param name: name of the filter
+        :param commodity: commodity being sold
+        :param min_price: optional minimum price of item
+        :param max_price: optional maximum price of item
+        :param keywords: optional keywords to search for
+        :return: None
+        """
         if name is None or commodity is None:
             await ctx.send("Error: You must give the filter a name and a item to filter for")
             return
@@ -110,12 +113,14 @@ class Filtering(commands.Cog):
 
                 await ctx.send(" ".join(f"<@{user_id}>" for user_id in data[name]["following"]))
 
-    """ Removes the filter specified
-        name: name of filter
-    """
-
     @commands.command()
     async def remove(self, ctx, name):
+        """
+        Removes the filter specified
+        :param ctx:
+        :param name: name of filter
+        :return: None
+        """
         if name is None:
             await ctx.send("Error: You must give a filter name to remove")
             return
@@ -143,12 +148,14 @@ class Filtering(commands.Cog):
         else:
             await ctx.send("There are no active filters")
 
-    """ User follows the filter specified
-        name: name of filter
-    """
-
     @commands.command()
     async def follow(self, ctx, name=None):
+        """
+        User follows the filter specified
+        :param ctx:
+        :param name: name of filter
+        :return:
+        """
         if name is None:
             await ctx.send("Error: You must give a filter name to follow")
             return
@@ -178,12 +185,14 @@ class Filtering(commands.Cog):
         else:
             await ctx.send("There are no active filters")
 
-    """ User unfollows the filter specified
-        name: name of filter
-    """
-
     @commands.command()
     async def unfollow(self, ctx, name=None):
+        """
+        User unfollows the filter specified
+        :param ctx:
+        :param name: name of filter
+        :return:
+        """
         if name is None:
             await ctx.send("Error: You must give a filter name to unfollow")
             return
