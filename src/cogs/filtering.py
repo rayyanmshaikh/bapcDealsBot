@@ -5,8 +5,11 @@ from discord.ext import commands
 
 """ The class meant to interact with the users for all commands to update the filters """
 
+filepath = "data/filters.json"
+
 
 class Filtering(commands.Cog):
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -49,8 +52,8 @@ class Filtering(commands.Cog):
         old_filter = {}
         filter_type = ""
 
-        if os.path.exists("filters.json") and os.path.getsize("filters.json") > 0:
-            with open("filters.json") as f:
+        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+            with open(filepath) as f:
                 data = json.load(f)
 
             old_filter = data.get(name)
@@ -81,7 +84,7 @@ class Filtering(commands.Cog):
         else:
             data = new_filter
 
-        with open("filters.json", "w", encoding="utf-8") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
         await ctx.send(f"Filter {name} {filter_type} with the following parameters:\nType - {commodity}\nMimium Price"
@@ -125,8 +128,8 @@ class Filtering(commands.Cog):
             await ctx.send("Error: You must give a filter name to remove")
             return
 
-        if os.path.exists("filters.json") and os.path.getsize("filters.json") > 0:
-            with open("filters.json") as f:
+        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+            with open(filepath) as f:
                 data = json.load(f)
 
             if name not in data:
@@ -140,7 +143,7 @@ class Filtering(commands.Cog):
             else:
                 data.pop(name)
 
-            with open("filters.json", "w", encoding="utf-8") as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             await ctx.send(f"{ctx.author.mention} you have deleted {name}")
@@ -160,8 +163,8 @@ class Filtering(commands.Cog):
             await ctx.send("Error: You must give a filter name to follow")
             return
 
-        if os.path.exists("filters.json") and os.path.getsize("filters.json") > 0:
-            with open("filters.json") as f:
+        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+            with open(filepath) as f:
                 data = json.load(f)
 
             user_id = ctx.message.author.id
@@ -177,7 +180,7 @@ class Filtering(commands.Cog):
                 await ctx.send(f"{ctx.author.mention} you already follow {name}")
                 return
 
-            with open("filters.json", "w", encoding="utf-8") as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             await ctx.send(f"{ctx.author.mention} you are now following {name}")
@@ -197,8 +200,8 @@ class Filtering(commands.Cog):
             await ctx.send("Error: You must give a filter name to unfollow")
             return
 
-        if os.path.exists("filters.json") and os.path.getsize("filters.json") > 0:
-            with open("filters.json") as f:
+        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+            with open(filepath) as f:
                 data = json.load(f)
 
             user_id = ctx.message.author.id
@@ -214,7 +217,7 @@ class Filtering(commands.Cog):
             else:
                 data[name]["following"].remove(user_id)
 
-            with open("filters.json", "w", encoding="utf-8") as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             await ctx.send(f"{ctx.author.mention} you have unfollowed {name}")
