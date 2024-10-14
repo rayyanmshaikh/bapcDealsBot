@@ -48,7 +48,7 @@ class Output(commands.Cog):
 
         return
 
-    @tasks.loop(seconds=10)
+    @tasks.loop(seconds=300)
     async def output(self):
         """
         Send pings to those following relevant filters about posts
@@ -83,14 +83,14 @@ class Output(commands.Cog):
 
             for post in parsed["posts"]:
                 for key, value in post.items():
-                    # if timecheck(value["publishingDate"], 300):
-                    #     return
+                    if timecheck(value["publishingDate"], 300):
+                        return
 
                     post_text = key
-                    price_match = re.search(rf"\s*\$*(\d+)\)", post_text)
+                    price_match = re.search(rf"\s*\$*(\d+\.*\d+)\)", post_text)
 
                     if price_match:
-                        price = int(price_match.group(1))
+                        price = float(price_match.group(1))
                         keyword_match = all(key in post_text for key in keywords)
 
                         if commodity in post_text and min_price <= price <= max_price and keyword_match:

@@ -36,7 +36,7 @@ async def load_cogs():
                 print(f'Failed to load {cog}: {e}')
 
 
-@tasks.loop(seconds=10)
+@tasks.loop(seconds=300)
 async def periodic_run():
     """
     Updates stored posts periodically
