@@ -17,9 +17,9 @@ bot = commands.Bot(command_prefix='?', intents=intents)
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     print('------')
-    await periodic_run()
-    print('------')
     await load_cogs()
+    print('------')
+    await periodic_run.start()
 
 
 async def load_cogs():
