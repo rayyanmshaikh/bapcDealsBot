@@ -254,12 +254,12 @@ class Filtering(commands.Cog):
             if channel_name not in data['channels']:
                 data['channels'].append(channel_name)
 
-                # Save the updated data back to the JSON file
                 with open(channel_filepath, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
-                print(f"Channel '{channel_name}' saved to '{channel_filepath}'.")
+                await ctx.send(f"I can now post in {channel_name}")
+
             else:
-                print(f"Channel '{channel_name}' already exists in '{channel_filepath}'.")
+                await ctx.send(f"I can already post in {channel_name}")
 
         else:
             await ctx.send("Error: You must give a valid channel name for me to send posts")
