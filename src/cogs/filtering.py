@@ -49,7 +49,7 @@ class Filtering(commands.Cog):
 
         standardized = [key.lower() for key in keywords]
 
-        new_filter = {name: {"commodity": commodity.lower(), "min": min_price, "max": max_price, "keywords":
+        new_filter = {name.lower(): {"commodity": commodity.lower(), "min": min_price, "max": max_price, "keywords":
             standardized, "creator": ctx.message.author.name, "following": [ctx.message.author.id]}}
 
         old_filter = {}
