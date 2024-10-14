@@ -5,7 +5,7 @@ import discord.utils
 from discord.ext import commands, tasks
 from datetime import datetime, timezone
 
-""" The class meant to interact with the users for all commands to update the filters """
+""" Output all posts that fit the filters """
 
 channel_filepath = "data/channels.json"
 filter_filepath = "data/filters.json"
@@ -17,7 +17,7 @@ def timecheck(post_time_str, time):
     Check if publishing time was greater than time
     :param post_time_str: publishing time
     :param time: time in seconds to check for
-    :return:
+    :return: true if difference is greater
     """
     post_time = datetime.strptime(post_time_str, "%Y-%m-%dT%H:%M:%S.%f%z")
     current_time = datetime.now(timezone.utc)
@@ -48,7 +48,7 @@ class Output(commands.Cog):
 
         return
 
-    @tasks.loop(seconds=300)
+    @tasks.loop(seconds=10)
     async def output(self):
         """
         Send pings to those following relevant filters about posts
@@ -83,8 +83,8 @@ class Output(commands.Cog):
 
             for post in parsed["posts"]:
                 for key, value in post.items():
-                    if timecheck(value["publishingDate"], 300):
-                        return
+                    # if timecheck(value["publishingDate"], 300):
+                    #     return
 
                     post_text = key
                     price_match = re.search(rf"\s*\$*(\d+)\)", post_text)
@@ -98,8 +98,8 @@ class Output(commands.Cog):
                                 c = discord.utils.get(self.bot.guilds[0].channels, name=ch)
 
                                 if c and isinstance(c, discord.TextChannel):
-                                    await c.send(f"Filter {filt}: {value['link']}\n"
-                                                 " ".join(f"<@{user_id}>" for user_id in filters[filt]["following"]))
+                                    await c.send(f"Filter {filt}: {value['link']}\n")
+                                    await c.send("".join(f"<@{user_id}>" for user_id in filters[filt]["following"]))
 
 
 async def setup(bot):

@@ -1,7 +1,7 @@
 import os
-from dotenv import load_dotenv
 import discord
 from discord.ext import commands, tasks
+from dotenv import load_dotenv
 from classes.parser import run
 
 load_dotenv('../.env')
@@ -25,7 +25,6 @@ async def on_ready():
 async def load_cogs():
     """
     Load all cogs
-    :return:
     """
     for filename in os.listdir('./cogs'):
         if filename.endswith('.py'):
@@ -37,11 +36,10 @@ async def load_cogs():
                 print(f'Failed to load {cog}: {e}')
 
 
-@tasks.loop(seconds=300)
+@tasks.loop(seconds=10)
 async def periodic_run():
     """
     Updates stored posts periodically
-    :return: None
     """
     await run()
 

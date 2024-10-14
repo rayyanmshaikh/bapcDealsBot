@@ -19,14 +19,12 @@ class Filtering(commands.Cog):
     async def add(self, ctx, name=None, commodity=None, min_price=None, max_price=None, *keywords):
         """
         Creates a new filter with specified limitations
-        name: name of filter
-        :param ctx:
+        :param name: name of filter
         :param name: name of the filter
         :param commodity: commodity being sold
         :param min_price: optional minimum price of item
         :param max_price: optional maximum price of item
         :param keywords: optional keywords to search for
-        :return: None
         """
         if name is None or commodity is None:
             await ctx.send("Error: You must give the filter a name and a item to filter for")
@@ -65,7 +63,7 @@ class Filtering(commands.Cog):
 
             if name in data:
                 await ctx.send(f"{ctx.author.mention} you are trying to overwrite the following filter:\n"
-                               f"Name - {name}\nType - {commodity}\nMimium Price - {min_price}\nMaximum Price - "
+                               f"Name - {name}\nType - {commodity}\nMinimum Price - {min_price}\nMaximum Price - "
                                f"{max_price}\nKeywords - {', '.join(keywords)}\n"
                                "Would you like to continue overwriting this filter? (y/n)")
 
@@ -92,7 +90,7 @@ class Filtering(commands.Cog):
         with open(filter_filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
-        await ctx.send(f"Filter {name} {filter_type} with the following parameters:\nType - {commodity}\nMimium Price"
+        await ctx.send(f"Filter {name} {filter_type} with the following parameters:\nType - {commodity}\nMinimum Price"
                        f" - {min_price}\nMaximum Price - {max_price}\nKeywords - {', '.join(keywords)}")
 
         if filter_type == "updated":
@@ -112,10 +110,10 @@ class Filtering(commands.Cog):
 
             if ping:
                 await ctx.send(f"The filter {name} you were following has been updated:\n"
-                               f"Old:\nType - {old_filter['commodity']}\nMimium Price - {old_filter['min']}"
+                               f"Old:\nType - {old_filter['commodity']}\nMinimum Price - {old_filter['min']}"
                                f"\nMaximum Price - {old_filter['max']}\nKeywords - "
                                f"{', '.join(old_filter['keywords'])}\n"
-                               f"New:\nType - {commodity}\nMimium Price - {min_price}"
+                               f"New:\nType - {commodity}\nMinimum Price - {min_price}"
                                f"\nMaximum Price - {max_price}\nKeywords - "
                                f"{', '.join(keywords)}\n")
 
@@ -125,9 +123,7 @@ class Filtering(commands.Cog):
     async def remove(self, ctx, name):
         """
         Removes the filter specified
-        :param ctx:
         :param name: name of filter
-        :return: None
         """
         if name is None:
             await ctx.send("Error: You must give a filter name to remove")
@@ -160,9 +156,7 @@ class Filtering(commands.Cog):
     async def follow(self, ctx, name=None):
         """
         User follows the filter specified
-        :param ctx:
         :param name: name of filter
-        :return:
         """
         if name is None:
             await ctx.send("Error: You must give a filter name to follow")
@@ -197,9 +191,7 @@ class Filtering(commands.Cog):
     async def unfollow(self, ctx, name=None):
         """
         User unfollows the filter specified
-        :param ctx:
         :param name: name of filter
-        :return:
         """
         if name is None:
             await ctx.send("Error: You must give a filter name to unfollow")
@@ -232,6 +224,11 @@ class Filtering(commands.Cog):
 
     @commands.command()
     async def setChannel(self, ctx, channel_name):
+        """
+        Set the channel you want me to send posts to (WARN: Multiple channels can be set but multiple pings will be
+        sent)
+        :param channel_name: name of the channel to post to
+        """
         if channel_name is None:
             await ctx.send("Error: You must give a channel name for me to send posts")
             return
@@ -263,6 +260,24 @@ class Filtering(commands.Cog):
 
         else:
             await ctx.send("Error: You must give a valid channel name for me to send posts")
+
+    @commands.command()
+    async def list(self, ctx):
+        """
+        List all filters currently active
+        :return: all filters
+        """
+        if os.path.exists(filter_filepath) and os.path.getsize(filter_filepath) > 0:
+            with open(filter_filepath) as f:
+                data = json.load(f)
+
+            for filter in data:
+                await ctx.send(f"{filter} parameters: Type - {data[filter]['commodity']} Min. "
+                               f" - {data[filter]['min']} Max. - {data[filter]['max']} Keywords - "
+                               f"{', '.join(data[filter]['keywords'])} Followers - {len(data[filter]['following'])}")
+
+        else:
+            await ctx.send("There are no active filters")
 
 
 async def setup(bot):
