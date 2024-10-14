@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands, tasks
-import asyncio
 from classes.parser import run
 
 load_dotenv('../.env')

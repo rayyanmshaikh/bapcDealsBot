@@ -47,8 +47,11 @@ class Filtering(commands.Cog):
                 'y', 'n'] and (message.author.name == data[name].get("creator") or message.author.guild_permissions.
                                administrator)
 
-        new_filter = {name: {"commodity": commodity, "min": min_price, "max": max_price, "keywords": keywords,
-                             "creator": ctx.message.author.name, "following": [ctx.message.author.id]}}
+        standardized = [key.lower() for key in keywords]
+
+        new_filter = {name: {"commodity": commodity.lower(), "min": min_price, "max": max_price, "keywords":
+            standardized, "creator": ctx.message.author.name, "following": [ctx.message.author.id]}}
+
         old_filter = {}
         filter_type = ""
 
