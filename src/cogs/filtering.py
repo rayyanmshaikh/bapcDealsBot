@@ -1,11 +1,13 @@
 import asyncio.exceptions
 import json
 import os
+import discord
 from discord.ext import commands
 
 """ The class meant to interact with the users for all commands to update the filters """
 
-filepath = "data/filters.json"
+filter_filepath = "data/filters.json"
+channel_filepath = "data/channels.json"
 
 
 class Filtering(commands.Cog):
@@ -55,8 +57,8 @@ class Filtering(commands.Cog):
         old_filter = {}
         filter_type = ""
 
-        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
-            with open(filepath) as f:
+        if os.path.exists(filter_filepath) and os.path.getsize(filter_filepath) > 0:
+            with open(filter_filepath) as f:
                 data = json.load(f)
 
             old_filter = data.get(name)
@@ -87,7 +89,7 @@ class Filtering(commands.Cog):
         else:
             data = new_filter
 
-        with open(filepath, "w", encoding="utf-8") as f:
+        with open(filter_filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
         await ctx.send(f"Filter {name} {filter_type} with the following parameters:\nType - {commodity}\nMimium Price"
@@ -131,8 +133,8 @@ class Filtering(commands.Cog):
             await ctx.send("Error: You must give a filter name to remove")
             return
 
-        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
-            with open(filepath) as f:
+        if os.path.exists(filter_filepath) and os.path.getsize(filter_filepath) > 0:
+            with open(filter_filepath) as f:
                 data = json.load(f)
 
             if name not in data:
@@ -146,7 +148,7 @@ class Filtering(commands.Cog):
             else:
                 data.pop(name)
 
-            with open(filepath, "w", encoding="utf-8") as f:
+            with open(filter_filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             await ctx.send(f"{ctx.author.mention} you have deleted {name}")
@@ -166,8 +168,8 @@ class Filtering(commands.Cog):
             await ctx.send("Error: You must give a filter name to follow")
             return
 
-        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
-            with open(filepath) as f:
+        if os.path.exists(filter_filepath) and os.path.getsize(filter_filepath) > 0:
+            with open(filter_filepath) as f:
                 data = json.load(f)
 
             user_id = ctx.message.author.id
@@ -183,7 +185,7 @@ class Filtering(commands.Cog):
                 await ctx.send(f"{ctx.author.mention} you already follow {name}")
                 return
 
-            with open(filepath, "w", encoding="utf-8") as f:
+            with open(filter_filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             await ctx.send(f"{ctx.author.mention} you are now following {name}")
@@ -203,8 +205,8 @@ class Filtering(commands.Cog):
             await ctx.send("Error: You must give a filter name to unfollow")
             return
 
-        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
-            with open(filepath) as f:
+        if os.path.exists(filter_filepath) and os.path.getsize(filter_filepath) > 0:
+            with open(filter_filepath) as f:
                 data = json.load(f)
 
             user_id = ctx.message.author.id
@@ -220,13 +222,47 @@ class Filtering(commands.Cog):
             else:
                 data[name]["following"].remove(user_id)
 
-            with open(filepath, "w", encoding="utf-8") as f:
+            with open(filter_filepath, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             await ctx.send(f"{ctx.author.mention} you have unfollowed {name}")
 
         else:
             await ctx.send("There are no active filters")
+
+    @commands.command()
+    async def setChannel(self, ctx, channel_name):
+        if channel_name is None:
+            await ctx.send("Error: You must give a channel name for me to send posts")
+            return
+
+        channel = discord.utils.get(ctx.guild.channels, name=channel_name)
+
+        if channel and isinstance(channel, discord.TextChannel):
+            if os.path.exists(channel_filepath):
+                with open(channel_filepath, 'r', encoding='utf-8') as f:
+                    try:
+                        data = json.load(f)
+                    except json.JSONDecodeError:
+                        data = {}
+            else:
+                data = {}
+
+            if 'channels' not in data:
+                data['channels'] = []
+
+            if channel_name not in data['channels']:
+                data['channels'].append(channel_name)
+
+                # Save the updated data back to the JSON file
+                with open(channel_filepath, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                print(f"Channel '{channel_name}' saved to '{channel_filepath}'.")
+            else:
+                print(f"Channel '{channel_name}' already exists in '{channel_filepath}'.")
+
+        else:
+            await ctx.send("Error: You must give a valid channel name for me to send posts")
 
 
 async def setup(bot):
