@@ -1,4 +1,8 @@
 # bapcDealsBot
-A discord bot which looks for posted deals on r/bapcsalescanada. Includes features such as price filtering, part filtering and custom searches.
+A Discord bot designed to monitor and share deals posted on r/bapcsalescanada. It uses filters based on the subreddit’s typical post structure, allowing it to scrape relevant deals and notify the bot’s creator along with any users following specific filters.
 
-![image](https://github.com/user-attachments/assets/4b5d3224-2ef2-4d24-8c17-273d6054f116)
+Current filtering options include product type, price range, and optional keywords.
+
+![image](https://github.com/user-attachments/assets/c3783705-af77-4b58-b352-786fc9b997d6)
+
+Please note that posts are made by real users, and subreddit formatting isn’t strictly followed. As a result, some posts may not match the expected format and could be missed by the filter.
